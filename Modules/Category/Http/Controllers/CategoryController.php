@@ -7,14 +7,20 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\File;
 use Modules\Category\Entities\Category;
+use Modules\Category\Repository\CategoryRepository;
 
 
 class CategoryController extends Controller
 {
+    private $categoryRepository;
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->CategoryRepository = $categoryRepository;
+    }
     public function index()
     {
      
-        $category = Category::all();
+        $category = $this->CategoryRepository->index();
         // dd($category);
         return view('category::categories.index', compact('category'));
     }
@@ -24,27 +30,30 @@ class CategoryController extends Controller
     {
          return view('category::categories.create');
     }
+
     public function store(Request $request)
     {
-        $category = new Category;
-        $category->name = $request->input('name');
-        $category->description = $request->input('description');
+        $data = [
+            'name' => $request->name,
+            'description' => $request->description,
+        ];
+
         if($request->hasfile('image')) 
         {
             $file = $request->file('image');
             $extention = $file->getClientOriginalExtension();
             $filename = time().'.'.$extention;
             $file->move('uploads/categories/',$filename);
-            $category->image = $filename;
+            $data['image'] = $filename;
         }
-        $category->save(); 
+        $this->CategoryRepository->store($data);
         return redirect()->back()->with('status','category Added Successfully');
     }
 
 
     public function edit($id)
      {
-        $category = Category::find($id);
+         $category = $this->CategoryRepository->find($id);
         return view('category::categories.edit', compact('category'));
     
     }
@@ -52,11 +61,14 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        $category = Category::find($id);
-        $category->name = $request->input('name');
-        $category->description = $request->input('description');
        
-
+        $data = [
+            'name' => $request->name,
+            'description' =>$request->description
+        ];
+        
+        $category = $this->CategoryRepository->find($id);
+         //dd($category);
         if($request->hasfile('image')) 
         {
             $destination = 'uploads/categories/'.$category->image;
@@ -68,10 +80,10 @@ class CategoryController extends Controller
             $extention = $file->getClientOriginalExtension();
             $filename = time().'.'.$extention;
             $file->move('uploads/categories/',$filename);
-            $category->image = $filename;
+            $data['image'] = $filename;
         }
         
-        $category->update(); 
+        Category::where('id', $id)->update($data); 
         return redirect()->back()->with('status','Category Updated Successfully');
     }
 
@@ -83,7 +95,7 @@ class CategoryController extends Controller
         {
             File::delete($destination);
         }
-        $category->delete();
+        $this->CategoryRepository->destroy($id);
         return redirect()->back()->with('status','Category Deleted Successfully');
     
  }

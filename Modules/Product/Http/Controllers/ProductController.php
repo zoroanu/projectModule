@@ -8,13 +8,21 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\File;
 use Modules\Category\Entities\Category;
 use Modules\Product\Entities\Product;
+use Modules\Product\Repository\ProductRepository;
 
 class ProductController extends Controller
 {
+    private $ProductRepository;
+    public function __construct(ProductRepository $ProductRepository)
+    {
+        $this->ProductRepository = $ProductRepository;
+    }
+
     public function index()
     {
      
-        $products = Product::all();
+        $products = $this->ProductRepository->index();
+        // $products = Product::all();
         return view('product::product.index', compact('products'));
     }
 
@@ -41,7 +49,7 @@ class ProductController extends Controller
             // $product->image = $filename;
             $data['image']=$filename;
         }
-       Product::create($data); 
+        $this->ProductRepository->store($data); 
         // $product->save(); 
         return redirect()->back()->with('status','Product Added Successfully');
     }
@@ -50,24 +58,24 @@ class ProductController extends Controller
     public function edit($id)
      {
         $categories = Category::all();
-        $product = Product::find($id);
+        $product = $this->ProductRepository->find($id);
          return view('product::product.edit',compact('categories'), compact('product'));
 
-        // return view(' product.edit', compact('product'));
-    
     }
 
 
     public function update(Request $request, $id)
     {
         try {
-            $product = Product::findorfail($id);
+            // $product = Product::findorfail($id);
         
             $data=[
                 'name'=> $request->name,
                 'category_id' => $request->category_id,
                 'status' => $request->status,
             ];
+            $product = $this->ProductRepository->find($id);
+            // dd($product);
             if($request->hasfile('image')) 
             {
                 $destination = 'uploads/products/'.$product->image;
@@ -83,7 +91,7 @@ class ProductController extends Controller
                 $data['image']= $filename;
             }
     
-            $product->update($data); 
+            Product::where('id', $id)->update($data); 
             return redirect()->back()->with('status','Product Updated Successfully');
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -99,7 +107,7 @@ class ProductController extends Controller
         {
             File::delete($destination);
         }
-        $product->delete();
+        $this->ProductRepository->destroy($id);
         return redirect()->back()->with('status','Product Deleted Successfully');
     
  }

@@ -33,12 +33,12 @@
                                         <img src="{{ asset('uploads/products/'.$item->image) }}" width="40px" height="40px" alt="Image">
                                     </td>
                                     <td>
-                                        <a href="{{ url('edit-product/'.$item->id) }}"  class="btn btn-primary btn-sm">Edit</a>
+                                        <a href="{{ url('product/edit-product/'.$item->id) }}"  class="btn btn-primary btn-sm">Edit</a>
                                     </td>
                                     <td>
-                                        {{-- <a href="{{ url('delete-product/'.$item->id) }}" class="btn btn-danger btn-sm">Delete</a> --}}
+                                      
                                         
-                                        <form action="{{ url('delete-product/'.$item->id) }}" method="POST" accept-charset="UTF-8" style="display:inline">
+                                        <form action="{{ url('product/delete-product/'.$item->id) }}" method="POST" accept-charset="UTF-8" style="display:inline">
                                             @csrf
                                             <button type="submit" class="btn btn-danger btn-sm" title="Delete Contact" onclick="return confirm(&quot;Confirm delete?&quot;)"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                                         </form>

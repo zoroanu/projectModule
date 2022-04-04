@@ -14,7 +14,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4>Edit Product
-                    <a href="{{ url('category/category') }}" class="btn btn-danger float-end">BACK</a></h4>
+                    <a href="{{ url('category/index-category') }}" class="btn btn-danger float-end">BACK</a></h4>
                 </div>
                 <div class="card-body">
 
